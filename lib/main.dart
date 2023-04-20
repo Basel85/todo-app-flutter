@@ -3,6 +3,9 @@ import 'package:todo/theme.dart';
 import 'package:todo/ui/Screens/add_task.dart';
 import 'package:todo/ui/Screens/task_home_screen.dart';
 
+import 'constants/keys.dart';
+import 'constants/routes.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -16,6 +19,8 @@ class MyApp extends StatelessWidget{
       darkTheme: Themes.dark,
       themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
+      navigatorKey: Keys.navigatorKey,
+      routes: Routes.routes,
       home: const TaskHomeScreen(),
       );
   }

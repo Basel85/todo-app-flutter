@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:todo/theme.dart';
 
+import '../../constants/keys.dart';
+
 PreferredSizeWidget appBarTask(String assetImagePath,bool isHomePage,{String appBarTitle=""}){
   return AppBar(
     title: Text(
@@ -14,7 +16,9 @@ PreferredSizeWidget appBarTask(String assetImagePath,bool isHomePage,{String app
         size: 24,
         color: primary,
       ),
-      onPressed: () {},
+      onPressed: () {
+        Keys.navigatorKey.currentState!.pop();
+      },
     )
         : null,
     elevation: 0,
