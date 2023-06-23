@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todo/enums.dart';
 import 'package:todo/theme.dart';
 import 'package:todo/ui/cubits/drop_down_field/drop_down_field_cubit.dart';
 
@@ -10,7 +11,7 @@ class InputField extends StatelessWidget {
   final String hintText;
   final TextEditingController? controller;
   final Widget? widget;
-  final bool isDropDownField;
+  final FormFieldType formFieldType;
   final bool readOnly;
 
   const InputField(
@@ -18,7 +19,9 @@ class InputField extends StatelessWidget {
       required this.title,
       required this.hintText,
       this.controller,
-      this.widget,this.isDropDownField = false,this.readOnly = false});
+      this.widget,
+      this.formFieldType = FormFieldType.normal,
+      this.readOnly = false});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +45,9 @@ class InputField extends StatelessWidget {
                 border: Border.all(color: primary)),
             child: Row(
               children: [
-                Expanded(child:isDropDownField? BlocBuilder<DropDownFieldCubit,DropDownFieldStates>(builder: ((context, _) => buildTextFormField(hintTxt: DropDownFieldCubit.get(context).selectedValue))):buildTextFormField()),
+                Expanded(
+                  child: selectTheAppropritateTextFormField(),
+                ),
                 widget ?? Container()
               ],
             ),
@@ -61,8 +66,23 @@ class InputField extends StatelessWidget {
       decoration: InputDecoration(
           contentPadding: const EdgeInsets.all(10),
           border: const UnderlineInputBorder(borderSide: BorderSide.none),
-          hintText: hintTxt.isEmpty?hintText:hintTxt,
+          hintText: hintTxt.isEmpty ? hintText : hintTxt,
           hintStyle: Themes.subTitleStyle),
     );
+  }
+
+  Widget selectTheAppropritateTextFormField() {
+    switch (formFieldType) {
+      case FormFieldType.dropDown:
+        return BlocBuilder<DropDownFieldCubit, DropDownFieldStates>(
+            builder: ((context, _) => buildTextFormField(
+                hintTxt: DropDownFieldCubit.get(context).selectedValue)));
+      case FormFieldType.date:
+        return buildTextFormField();
+      case FormFieldType.time:
+        return buildTextFormField();
+      default:
+        return buildTextFormField();
+    }
   }
 }

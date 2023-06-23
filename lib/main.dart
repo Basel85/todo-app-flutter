@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo/theme.dart';
-import 'package:todo/ui/Screens/add_task.dart';
 import 'package:todo/ui/Screens/task_home_screen.dart';
+import 'package:todo/ui/cubits/date_time/date_time_cubit.dart';
 
 import 'constants/keys.dart';
 import 'constants/routes.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiBlocProvider(providers: [
+    BlocProvider<DateTimeCubit>(
+      create: (context) => DateTimeCubit(),
+    ),
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget{

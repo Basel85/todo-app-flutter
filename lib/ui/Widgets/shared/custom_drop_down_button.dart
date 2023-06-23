@@ -5,7 +5,8 @@ import '../../../theme.dart';
 class CustomDropDownButton extends StatelessWidget {
   final List<dynamic> dropDownMenuItems;
   final Function(Object?)? onChanged;
-  const CustomDropDownButton({super.key, required this.dropDownMenuItems, this.onChanged});
+  const CustomDropDownButton(
+      {super.key, required this.dropDownMenuItems, this.onChanged});
 
   @override
   Widget build(BuildContext context) {

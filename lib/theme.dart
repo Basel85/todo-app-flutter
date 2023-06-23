@@ -18,13 +18,13 @@ class Themes{
       primaryColor: darkGrey,
       brightness: Brightness.dark
   );
-  static TextStyle get headingStyle=>GoogleFonts.lato(textStyle:  TextStyle(color: black,fontSize: 24,fontWeight: FontWeight.bold));
-  static TextStyle get subHeadingStyle=>GoogleFonts.lato(textStyle:  TextStyle(color: black,fontSize: 20,fontWeight: FontWeight.bold));
-  static TextStyle get titleStyle=>GoogleFonts.lato(textStyle: TextStyle(color: black,fontSize: 18,fontWeight: FontWeight.bold));
-  static TextStyle get subTitleStyle=>GoogleFonts.lato(textStyle: TextStyle(color: black,fontSize: 16,fontWeight: FontWeight.w400));
-  static TextStyle get bodyStyle=>GoogleFonts.lato(textStyle: TextStyle(color: black,fontSize: 14,fontWeight: FontWeight.w400));
+  static TextStyle get headingStyle=>GoogleFonts.lato(textStyle:  const TextStyle(color: black,fontSize: 24,fontWeight: FontWeight.bold));
+  static TextStyle get subHeadingStyle=>GoogleFonts.lato(textStyle:  const TextStyle(color: black,fontSize: 20,fontWeight: FontWeight.bold));
+  static TextStyle get titleStyle=>GoogleFonts.lato(textStyle: const TextStyle(color: black,fontSize: 18,fontWeight: FontWeight.bold));
+  static TextStyle get subTitleStyle=>GoogleFonts.lato(textStyle: const TextStyle(color: black,fontSize: 16,fontWeight: FontWeight.w400));
+  static TextStyle get bodyStyle=>GoogleFonts.lato(textStyle: const TextStyle(color: black,fontSize: 14,fontWeight: FontWeight.w400));
   static TextStyle get body2Style=>GoogleFonts.lato(textStyle: TextStyle(color: Colors.grey[200],fontSize: 14,fontWeight: FontWeight.w400));
-  static TextStyle get dateTimeStyle=>GoogleFonts.lato(textStyle: TextStyle(color: Colors.grey,fontSize: 20,fontWeight: FontWeight.w600));
-  static TextStyle get dayTimeStyle=>GoogleFonts.lato(textStyle: TextStyle(color: Colors.grey,fontSize: 16,fontWeight: FontWeight.w600));
-  static TextStyle get monthTimeStyle=>GoogleFonts.lato(textStyle: TextStyle(color: Colors.grey,fontSize: 12,fontWeight: FontWeight.w600));
+  static TextStyle get dateTimeStyle=>GoogleFonts.lato(textStyle: const TextStyle(color: Colors.grey,fontSize: 20,fontWeight: FontWeight.w600));
+  static TextStyle get dayTimeStyle=>GoogleFonts.lato(textStyle: const TextStyle(color: Colors.grey,fontSize: 16,fontWeight: FontWeight.w600));
+  static TextStyle get monthTimeStyle=>GoogleFonts.lato(textStyle: const TextStyle(color: Colors.grey,fontSize: 12,fontWeight: FontWeight.w600));
 }
