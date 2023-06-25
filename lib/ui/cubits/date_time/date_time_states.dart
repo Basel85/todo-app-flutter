@@ -4,4 +4,12 @@ class DateTimeChangedDateState extends DateTimeStates {
   final String date;
   DateTimeChangedDateState(this.date);
 }
-class DateTimeChangedTimeState extends DateTimeStates {}
+class DateTimeChangedStartTimeState extends DateTimeStates {
+  final String time;
+  DateTimeChangedStartTimeState(this.time);
+}
+
+class DateTimeChangedEndTimeState extends DateTimeStates {
+  final String time;
+  DateTimeChangedEndTimeState(this.time);
+}

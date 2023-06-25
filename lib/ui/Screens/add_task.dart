@@ -7,6 +7,7 @@ import 'package:todo/ui/Widgets/shared/custom_drop_down_button.dart';
 import 'package:todo/ui/Widgets/task_color_builder.dart';
 import 'package:todo/ui/cubits/date_time/date_time_cubit.dart';
 import 'package:todo/ui/cubits/drop_down_field/drop_down_field_cubit.dart';
+import 'package:todo/utils/mixins/string_to_datetime_converter.dart';
 import '../../theme.dart';
 import '../Widgets/appbar_task.dart';
 import '../Widgets/input_field.dart';
@@ -19,34 +20,62 @@ class AddTaskScreen extends StatefulWidget {
   State<AddTaskScreen> createState() => _AddTaskScreenState();
 }
 
-class _AddTaskScreenState extends State<AddTaskScreen> {
+class _AddTaskScreenState extends State<AddTaskScreen>
+    with StringToDateTimeConverter {
   final TextEditingController _titleEditingController = TextEditingController();
   final TextEditingController _noteEditingController = TextEditingController();
-  final TextEditingController _dateEditingController = TextEditingController();
-  final TextEditingController _startTimeEditingController =
-      TextEditingController();
-  final TextEditingController _endTimeEditingController =
-      TextEditingController();
-  final TextEditingController _remindMeEditingController =
-      TextEditingController();
-  final TextEditingController _repeatEditingController =
-      TextEditingController();
+  late String _date;
+  late String _startTime;
+  late String _endTime;
+  int _remindMe = DropDownMenuItems.remindMeDropDownMenuItems[0];
+  String _repeat = DropDownMenuItems.repeatDropDownMenuItems[0].toString();
   final TextEditingController _taskColorEditingController =
       TextEditingController();
-  int selectedMinute = DropDownMenuItems.remindMeDropDownMenuItems[0];
-  String repeatValue = DropDownMenuItems.repeatDropDownMenuItems[0];
-  late DateTime _currentDate;
-  late DateFormat _dateFormat;
+  DateTime currentSeletedDate = DateTime.now();
+  TimeOfDay selectedStartTime = TimeOfDay.now();
+  TimeOfDay selectedEndTime = TimeOfDay.now();
+
   @override
   void initState() {
-    _currentDate = DateTime.now();
-    _dateFormat = DateFormat.yMd();
+    _date = DateFormat.yMd().format(DateTime.now());
     super.initState();
   }
 
-  void addTask() {}
-  void changeDate(String date) {
-    DateTimeCubit.get(context).changeDate(date);
+  void addTask() {
+    try {} catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void changeTime(bool isStartTime) {
+    showTimePicker(
+            context: context,
+            initialTime: isStartTime ? selectedStartTime : selectedEndTime)
+        .then((time) {
+      isStartTime
+          ? _startTime = time == null ? selectedStartTime.format(context) : time.format(context)
+          : _endTime = time == null ? selectedEndTime.format(context) : time.format(context);
+      if (time != null) {
+        isStartTime ? selectedStartTime = time : selectedEndTime = time;
+      }
+      DateTimeCubit.get(context)
+          .changeTime(isStartTime ? _startTime : _endTime,isStartTime);
+    });
+  }
+
+  void changeDate() {
+    showDatePicker(
+            context: context,
+            initialDate: currentSeletedDate,
+            firstDate: DateTime(DateTime.now().year),
+            lastDate: DateTime(DateTime.now().year + 10))
+        .then((selectedDateTime) {
+      _date = DateFormat.yMd().format(selectedDateTime ?? currentSeletedDate);
+      if (selectedDateTime != null) {
+        currentSeletedDate = selectedDateTime;
+      }
+      DateTimeCubit.get(context).changeDate(_date);
+    });
   }
 
   @override
@@ -92,18 +121,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               InputField(
                 title: "Date",
                 readOnly: true,
-                controller: _dateEditingController,
-                hintText: _dateFormat.format(DateTime.now()),
+                hintText: DateFormat.yMd().format(DateTime.now()),
+                formFieldType: FormFieldType.date,
                 widget: IconButton(
-                    onPressed: () async {
-                      DateTime? selectedDateTime = await showDatePicker(
-                          context: context,
-                          initialDate: _currentDate,
-                          firstDate: DateTime(_currentDate.year),
-                          lastDate: DateTime(_currentDate.year + 1));
-                      _dateEditingController.text =
-                          _dateFormat.format(selectedDateTime!);
-                      changeDate(_dateEditingController.text);
+                    onPressed: () {
+                      changeDate();
                     },
                     icon: const Icon(
                       Icons.calendar_today_outlined,
@@ -116,11 +138,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       child: InputField(
                     title: "Start time",
                     readOnly: true,
-                    controller: _startTimeEditingController,
+                    formFieldType: FormFieldType.startTime,
                     hintText:
-                        DateFormat("hh:mm a").format(DateTime.now()).toString(),
+                        DateFormat("hh:mm a").format(DateTime.now()),
                     widget: IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          changeTime(true);
+                        },
                         icon: const Icon(
                           Icons.access_alarm_rounded,
                           color: Colors.grey,
@@ -132,14 +156,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   Expanded(
                     child: InputField(
                       readOnly: true,
-                      controller: _endTimeEditingController,
                       title: "End time",
+                      formFieldType: FormFieldType.endTime,
                       hintText: DateFormat("hh:mm a")
                           .format(
                               DateTime.now().add(const Duration(minutes: 10)))
                           .toString(),
                       widget: IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            changeTime(false);
+                          },
                           icon: const Icon(
                             Icons.access_alarm_rounded,
                             color: Colors.grey,
@@ -152,10 +178,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 create: (context) => DropDownFieldCubit(),
                 child: InputField(
                   title: "Remind",
-                  controller: _remindMeEditingController,
                   formFieldType: FormFieldType.dropDown,
                   readOnly: true,
-                  hintText: "$selectedMinute minutes early",
+                  hintText: "$_remindMe minutes early",
                   widget: Row(
                     children: [
                       Builder(builder: (context) {
@@ -163,9 +188,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           dropDownMenuItems:
                               DropDownMenuItems.remindMeDropDownMenuItems,
                           onChanged: (Object? newValue) {
+                            _remindMe = newValue as int;
                             DropDownFieldCubit.get(context)
                                 .changeRemindDropDownMenuItemValue(
-                                    newValue.toString());
+                                    _remindMe.toString());
                           },
                         );
                       }),
@@ -180,10 +206,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 create: (context) => DropDownFieldCubit(),
                 child: InputField(
                   title: "Repeat",
-                  controller: _repeatEditingController,
                   formFieldType: FormFieldType.dropDown,
                   readOnly: true,
-                  hintText: repeatValue,
+                  hintText: _repeat,
                   widget: Row(
                     children: [
                       Builder(builder: (context) {
@@ -191,9 +216,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                             dropDownMenuItems:
                                 DropDownMenuItems.repeatDropDownMenuItems,
                             onChanged: (Object? newValue) {
+                              _repeat = newValue.toString();
                               DropDownFieldCubit.get(context)
                                   .changeRepeatDropDownMenuItemValue(
-                                      newValue.toString());
+                                      _repeat);
                             });
                       }),
                       const SizedBox(

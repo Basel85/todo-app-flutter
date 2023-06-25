@@ -1,1 +1,1 @@
-enum FormFieldType {dropDown, date, time, normal}
+enum FormFieldType {dropDown, date, startTime, endTime, normal}

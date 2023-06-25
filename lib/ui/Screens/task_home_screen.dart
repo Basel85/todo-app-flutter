@@ -5,7 +5,6 @@ import 'package:todo/constants/keys.dart';
 import 'package:todo/ui/Screens/add_task.dart';
 import 'package:todo/ui/Widgets/appbar_task.dart';
 import 'package:todo/ui/Widgets/button.dart';
-
 import '../../theme.dart';
 
 class TaskHomeScreen extends StatefulWidget {
@@ -17,7 +16,13 @@ class TaskHomeScreen extends StatefulWidget {
 }
 
 class _TaskHomeScreenState extends State<TaskHomeScreen> {
-  DateTime _currentDate = DateTime.now();
+  late DateTime _currentDate;
+  @override
+  void initState() {
+    _currentDate = DateTime.now();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +40,7 @@ class _TaskHomeScreenState extends State<TaskHomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      DateFormat.yMMMMd().format(DateTime.now()).toString(),
+                      DateFormat.yMMMMd().format(_currentDate).toString(),
                       style: Themes.subHeadingStyle,
                     ),
                     Text(
