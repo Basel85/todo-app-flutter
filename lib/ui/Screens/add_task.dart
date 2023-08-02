@@ -82,166 +82,176 @@ class _AddTaskScreenState extends State<AddTaskScreen>
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: appBarTask(
-          appBarTitle: "Add Task", "assets/images/person.png", false),
-      body: Container(
-        width: size.width,
-        margin: const EdgeInsets.only(top: 20, left: 14, right: 14),
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: ListView(
-            children: [
-              Text(
-                "Add Task",
-                style: Themes.headingStyle,
-                textAlign: TextAlign.center,
-              ),
-              InputField(
-                  title: "Title",
-                  hintText: "Enter title here",
-                  controller: _titleEditingController,
-                  widget: IconButton(
-                    icon: const Icon(
-                      Icons.alarm_add_rounded,
-                      color: Colors.grey,
+      body: Column(
+        children: [
+           const AppBarTask(assetImagePath: "assets/images/person.png",appBarTitle: "Add Task",isHomePage: false,),
+          Expanded(
+            child: ListView(
+              children: [
+                Container(
+                  width: size.width,
+                  margin: const EdgeInsets.only(top: 20, left: 14, right: 14),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Add Task",
+                          style: Themes.headingStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                        InputField(
+                            title: "Title",
+                            hintText: "Enter title here",
+                            controller: _titleEditingController,
+                            widget: IconButton(
+                              icon: const Icon(
+                                Icons.alarm_add_rounded,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {},
+                            )),
+                        InputField(
+                            title: "Note",
+                            hintText: "Enter note here",
+                            controller: _noteEditingController,
+                            widget: IconButton(
+                              icon: const Icon(
+                                Icons.alarm_add_rounded,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {},
+                            )),
+                        InputField(
+                          title: "Date",
+                          readOnly: true,
+                          hintText: DateFormat.yMd().format(DateTime.now()),
+                          formFieldType: FormFieldType.date,
+                          widget: IconButton(
+                              onPressed: () {
+                                changeDate();
+                              },
+                              icon: const Icon(
+                                Icons.calendar_today_outlined,
+                                color: Colors.grey,
+                              )),
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                                child: InputField(
+                              title: "Start time",
+                              readOnly: true,
+                              formFieldType: FormFieldType.startTime,
+                              hintText:
+                                  DateFormat("hh:mm a").format(DateTime.now()),
+                              widget: IconButton(
+                                  onPressed: () {
+                                    changeTime(true);
+                                  },
+                                  icon: const Icon(
+                                    Icons.access_alarm_rounded,
+                                    color: Colors.grey,
+                                  )),
+                            )),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            Expanded(
+                              child: InputField(
+                                readOnly: true,
+                                title: "End time",
+                                formFieldType: FormFieldType.endTime,
+                                hintText: DateFormat("hh:mm a")
+                                    .format(
+                                        DateTime.now().add(const Duration(minutes: 10)))
+                                    .toString(),
+                                widget: IconButton(
+                                    onPressed: () {
+                                      changeTime(false);
+                                    },
+                                    icon: const Icon(
+                                      Icons.access_alarm_rounded,
+                                      color: Colors.grey,
+                                    )),
+                              ),
+                            )
+                          ],
+                        ),
+                        BlocProvider<DropDownFieldCubit>(
+                          create: (context) => DropDownFieldCubit(),
+                          child: InputField(
+                            title: "Remind",
+                            formFieldType: FormFieldType.dropDown,
+                            readOnly: true,
+                            hintText: "$_remindMe minutes early",
+                            widget: Row(
+                              children: [
+                                Builder(builder: (context) {
+                                  return CustomDropDownButton(
+                                    dropDownMenuItems:
+                                        DropDownMenuItems.remindMeDropDownMenuItems,
+                                    onChanged: (Object? newValue) {
+                                      _remindMe = newValue as int;
+                                      DropDownFieldCubit.get(context)
+                                          .changeRemindDropDownMenuItemValue(
+                                              _remindMe.toString());
+                                    },
+                                  );
+                                }),
+                                const SizedBox(
+                                  width: 10,
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        BlocProvider<DropDownFieldCubit>(
+                          create: (context) => DropDownFieldCubit(),
+                          child: InputField(
+                            title: "Repeat",
+                            formFieldType: FormFieldType.dropDown,
+                            readOnly: true,
+                            hintText: _repeat,
+                            widget: Row(
+                              children: [
+                                Builder(builder: (context) {
+                                  return CustomDropDownButton(
+                                      dropDownMenuItems:
+                                          DropDownMenuItems.repeatDropDownMenuItems,
+                                      onChanged: (Object? newValue) {
+                                        _repeat = newValue.toString();
+                                        DropDownFieldCubit.get(context)
+                                            .changeRepeatDropDownMenuItemValue(
+                                                _repeat);
+                                      });
+                                }),
+                                const SizedBox(
+                                  width: 10,
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                        Row(children: [
+                          const Expanded(child: TaskColorBuilder()),
+                          TaskButton(
+                            label: "Create task",
+                            onTap: () {},
+                          ),
+                        ])
+                      ],
                     ),
-                    onPressed: () {},
-                  )),
-              InputField(
-                  title: "Note",
-                  hintText: "Enter note here",
-                  controller: _noteEditingController,
-                  widget: IconButton(
-                    icon: const Icon(
-                      Icons.alarm_add_rounded,
-                      color: Colors.grey,
-                    ),
-                    onPressed: () {},
-                  )),
-              InputField(
-                title: "Date",
-                readOnly: true,
-                hintText: DateFormat.yMd().format(DateTime.now()),
-                formFieldType: FormFieldType.date,
-                widget: IconButton(
-                    onPressed: () {
-                      changeDate();
-                    },
-                    icon: const Icon(
-                      Icons.calendar_today_outlined,
-                      color: Colors.grey,
-                    )),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                      child: InputField(
-                    title: "Start time",
-                    readOnly: true,
-                    formFieldType: FormFieldType.startTime,
-                    hintText:
-                        DateFormat("hh:mm a").format(DateTime.now()),
-                    widget: IconButton(
-                        onPressed: () {
-                          changeTime(true);
-                        },
-                        icon: const Icon(
-                          Icons.access_alarm_rounded,
-                          color: Colors.grey,
-                        )),
-                  )),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  Expanded(
-                    child: InputField(
-                      readOnly: true,
-                      title: "End time",
-                      formFieldType: FormFieldType.endTime,
-                      hintText: DateFormat("hh:mm a")
-                          .format(
-                              DateTime.now().add(const Duration(minutes: 10)))
-                          .toString(),
-                      widget: IconButton(
-                          onPressed: () {
-                            changeTime(false);
-                          },
-                          icon: const Icon(
-                            Icons.access_alarm_rounded,
-                            color: Colors.grey,
-                          )),
-                    ),
-                  )
-                ],
-              ),
-              BlocProvider<DropDownFieldCubit>(
-                create: (context) => DropDownFieldCubit(),
-                child: InputField(
-                  title: "Remind",
-                  formFieldType: FormFieldType.dropDown,
-                  readOnly: true,
-                  hintText: "$_remindMe minutes early",
-                  widget: Row(
-                    children: [
-                      Builder(builder: (context) {
-                        return CustomDropDownButton(
-                          dropDownMenuItems:
-                              DropDownMenuItems.remindMeDropDownMenuItems,
-                          onChanged: (Object? newValue) {
-                            _remindMe = newValue as int;
-                            DropDownFieldCubit.get(context)
-                                .changeRemindDropDownMenuItemValue(
-                                    _remindMe.toString());
-                          },
-                        );
-                      }),
-                      const SizedBox(
-                        width: 10,
-                      )
-                    ],
                   ),
                 ),
-              ),
-              BlocProvider<DropDownFieldCubit>(
-                create: (context) => DropDownFieldCubit(),
-                child: InputField(
-                  title: "Repeat",
-                  formFieldType: FormFieldType.dropDown,
-                  readOnly: true,
-                  hintText: _repeat,
-                  widget: Row(
-                    children: [
-                      Builder(builder: (context) {
-                        return CustomDropDownButton(
-                            dropDownMenuItems:
-                                DropDownMenuItems.repeatDropDownMenuItems,
-                            onChanged: (Object? newValue) {
-                              _repeat = newValue.toString();
-                              DropDownFieldCubit.get(context)
-                                  .changeRepeatDropDownMenuItemValue(
-                                      _repeat);
-                            });
-                      }),
-                      const SizedBox(
-                        width: 10,
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              Row(children: [
-                const Expanded(child: TaskColorBuilder()),
-                TaskButton(
-                  label: "Create task",
-                  onTap: () {},
-                ),
-              ])
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

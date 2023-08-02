@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo/theme.dart';
 import 'package:todo/ui/Screens/task_home_screen.dart';
 import 'package:todo/ui/cubits/date_time/date_time_cubit.dart';
+import 'package:todo/ui/cubits/task_color/task_color_cubit.dart';
 
 import 'constants/keys.dart';
 import 'constants/routes.dart';
@@ -12,6 +13,9 @@ void main() {
     BlocProvider<DateTimeCubit>(
       create: (context) => DateTimeCubit(),
     ),
+    BlocProvider<TaskColorCubit>(
+      create: (context) => TaskColorCubit(),
+    )
   ], child: const MyApp()));
 }
 

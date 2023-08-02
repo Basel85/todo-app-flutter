@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:todo/theme.dart';
 
 import '../../constants/keys.dart';
+class AppBarTask extends StatelessWidget {
+  final String assetImagePath;
+  final bool isHomePage;
+  final String appBarTitle;
+  const AppBarTask({super.key, required this.assetImagePath, required this.isHomePage, this.appBarTitle=""});
 
-PreferredSizeWidget appBarTask(String assetImagePath,bool isHomePage,{String appBarTitle=""}){
-  return AppBar(
-    title: Text(
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+       title: Text(
       appBarTitle,
       style: Themes.headingStyle,
     ),
@@ -32,5 +38,6 @@ PreferredSizeWidget appBarTask(String assetImagePath,bool isHomePage,{String app
         width: 20,
       )
     ],
-  );
+    );
+  }
 }

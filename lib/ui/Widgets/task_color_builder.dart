@@ -17,49 +17,46 @@ class _TaskColorBuilderState extends State<TaskColorBuilder> {
   int taskColorCurrentIndex = 0;
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<TaskColorCubit>(
-      create: (context) => TaskColorCubit(),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Color",
-            style: Themes.titleStyle,
-          ),
-          const SizedBox(
-            height: 8,
-          ),
-          Wrap(
-            direction: Axis.horizontal,
-            spacing: 8,
-            runSpacing: 8,
-            children: List.generate(
-                taskColor.length,
-                (index) => Builder(
-                  builder: (context) {
-                    return GestureDetector(
-                          onTap: () {
-                            TaskColorCubit.get(context).changeTaskColorIndex(index);
-                          },
-                          child: BlocBuilder<TaskColorCubit,TaskColorStates>(
-                            builder:(context, _) =>  CircleAvatar(
-                              radius: 14,
-                              backgroundColor: taskColor[index],
-                              child: TaskColorCubit.get(context).taskColorIndex == index
-                                  ? const Icon(
-                                      Icons.done,
-                                      size: 16,
-                                      color: Colors.white,
-                                    )
-                                  : null,
-                            ),
-                          ),);
-                  }
-                ),
-                    )),
-        ],
-      ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Color",
+          style: Themes.titleStyle,
+        ),
+        const SizedBox(
+          height: 8,
+        ),
+        Wrap(
+          direction: Axis.horizontal,
+          spacing: 8,
+          runSpacing: 8,
+          children: List.generate(
+              taskColor.length,
+              (index) => Builder(
+                builder: (context) {
+                  return GestureDetector(
+                        onTap: () {
+                          TaskColorCubit.get(context).changeTaskColorIndex(index);
+                        },
+                        child: BlocBuilder<TaskColorCubit,TaskColorStates>(
+                          builder:(context, _) =>  CircleAvatar(
+                            radius: 14,
+                            backgroundColor: taskColor[index],
+                            child: TaskColorCubit.get(context).taskColorIndex == index
+                                ? const Icon(
+                                    Icons.done,
+                                    size: 16,
+                                    color: Colors.white,
+                                  )
+                                : null,
+                          ),
+                        ),);
+                }
+              ),
+                  )),
+      ],
     );
   }
 }
