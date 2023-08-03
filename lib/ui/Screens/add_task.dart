@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo/constants/drop_down_menu_items.dart';
-import 'package:todo/enums.dart';
+import 'package:todo/ui/Widgets/add_task/task_circle.dart';
 import 'package:todo/ui/Widgets/button.dart';
 import 'package:todo/ui/Widgets/shared/custom_drop_down_button.dart';
-import 'package:todo/ui/Widgets/task_color_builder.dart';
-import 'package:todo/ui/cubits/date_time/date_time_cubit.dart';
-import 'package:todo/ui/cubits/drop_down_field/drop_down_field_cubit.dart';
-import 'package:todo/utils/mixins/string_to_datetime_converter.dart';
+import 'package:todo/ui/Widgets/shared/custom_text_form_field.dart';
+import 'package:todo/ui/cubits/input_field/input_field_cubit.dart';
+import 'package:todo/ui/cubits/input_field/input_field_states.dart';
+import 'package:todo/ui/cubits/task_color/task_color_cubit.dart';
+import 'package:todo/ui/cubits/task_color/task_color_states.dart';
 import '../../theme.dart';
-import '../Widgets/appbar_task.dart';
+import '../Widgets/shared/appbar_task.dart';
 import '../Widgets/input_field.dart';
 import 'package:intl/intl.dart';
 
@@ -20,21 +21,19 @@ class AddTaskScreen extends StatefulWidget {
   State<AddTaskScreen> createState() => _AddTaskScreenState();
 }
 
-class _AddTaskScreenState extends State<AddTaskScreen>
-    with StringToDateTimeConverter {
+class _AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController _titleEditingController = TextEditingController();
   final TextEditingController _noteEditingController = TextEditingController();
+  int _remindMe = DropDownMenuItems.remindMeDropDownMenuItems[0];
+  String _repeat = DropDownMenuItems.repeatDropDownMenuItems[0].toString();
   late String _date;
   late String _startTime;
   late String _endTime;
-  int _remindMe = DropDownMenuItems.remindMeDropDownMenuItems[0];
-  String _repeat = DropDownMenuItems.repeatDropDownMenuItems[0].toString();
-  final TextEditingController _taskColorEditingController =
-      TextEditingController();
-  DateTime currentSeletedDate = DateTime.now();
-  TimeOfDay selectedStartTime = TimeOfDay.now();
-  TimeOfDay selectedEndTime = TimeOfDay.now();
-
+  DateTime _currentSeletedDate = DateTime.now();
+  TimeOfDay _selectedStartTime = TimeOfDay.now();
+  TimeOfDay _selectedEndTime = TimeOfDay.now();
+  final List<Color> _taskCircleColors = [primary, pink, orange];
+  Color _currentTaskCircleColor = primary;
   @override
   void initState() {
     _date = DateFormat.yMd().format(DateTime.now());
@@ -50,31 +49,35 @@ class _AddTaskScreenState extends State<AddTaskScreen>
   void changeTime(bool isStartTime) {
     showTimePicker(
             context: context,
-            initialTime: isStartTime ? selectedStartTime : selectedEndTime)
+            initialTime: isStartTime ? _selectedStartTime : _selectedEndTime)
         .then((time) {
       isStartTime
-          ? _startTime = time == null ? selectedStartTime.format(context) : time.format(context)
-          : _endTime = time == null ? selectedEndTime.format(context) : time.format(context);
+          ? _startTime = time == null
+              ? _selectedStartTime.format(context)
+              : time.format(context)
+          : _endTime = time == null
+              ? _selectedEndTime.format(context)
+              : time.format(context);
       if (time != null) {
-        isStartTime ? selectedStartTime = time : selectedEndTime = time;
+        isStartTime ? _selectedStartTime = time : _selectedEndTime = time;
       }
-      DateTimeCubit.get(context)
-          .changeTime(isStartTime ? _startTime : _endTime,isStartTime);
+      InputFieldCubit.get(context)
+          .changeTime(isStartTime ? _startTime : _endTime, isStartTime);
     });
   }
 
   void changeDate() {
     showDatePicker(
             context: context,
-            initialDate: currentSeletedDate,
+            initialDate: _currentSeletedDate,
             firstDate: DateTime(DateTime.now().year),
             lastDate: DateTime(DateTime.now().year + 10))
         .then((selectedDateTime) {
-      _date = DateFormat.yMd().format(selectedDateTime ?? currentSeletedDate);
-      if (selectedDateTime != null) {
-        currentSeletedDate = selectedDateTime;
+      _date = DateFormat.yMd().format(selectedDateTime ?? _currentSeletedDate);
+      if (selectedDateTime != null && selectedDateTime != _currentSeletedDate) {
+        _currentSeletedDate = selectedDateTime;
+        InputFieldCubit.get(context).changeDate(_date);
       }
-      DateTimeCubit.get(context).changeDate(_date);
     });
   }
 
@@ -84,7 +87,11 @@ class _AddTaskScreenState extends State<AddTaskScreen>
     return Scaffold(
       body: Column(
         children: [
-           const AppBarTask(assetImagePath: "assets/images/person.png",appBarTitle: "Add Task",isHomePage: false,),
+          const AppBarTask(
+            assetImagePath: "assets/images/person.png",
+            appBarTitle: "Add Task",
+            isHomePage: false,
+          ),
           Expanded(
             child: ListView(
               children: [
@@ -102,9 +109,11 @@ class _AddTaskScreenState extends State<AddTaskScreen>
                           textAlign: TextAlign.center,
                         ),
                         InputField(
+                            textField: CustomTextFormField(
+                              controller: _titleEditingController,
+                              hintText: "Enter title here",
+                            ),
                             title: "Title",
-                            hintText: "Enter title here",
-                            controller: _titleEditingController,
                             widget: IconButton(
                               icon: const Icon(
                                 Icons.alarm_add_rounded,
@@ -114,8 +123,10 @@ class _AddTaskScreenState extends State<AddTaskScreen>
                             )),
                         InputField(
                             title: "Note",
-                            hintText: "Enter note here",
-                            controller: _noteEditingController,
+                            textField: CustomTextFormField(
+                              controller: _noteEditingController,
+                              hintText: "Enter note here",
+                            ),
                             widget: IconButton(
                               icon: const Icon(
                                 Icons.alarm_add_rounded,
@@ -125,9 +136,17 @@ class _AddTaskScreenState extends State<AddTaskScreen>
                             )),
                         InputField(
                           title: "Date",
-                          readOnly: true,
-                          hintText: DateFormat.yMd().format(DateTime.now()),
-                          formFieldType: FormFieldType.date,
+                          textField:
+                              BlocBuilder<InputFieldCubit, InputFieldStates>(
+                            buildWhen: (context, state) =>
+                                state is InputFieldChangedDateState,
+                            builder: (context, state) => CustomTextFormField(
+                              hintText: state is InputFieldChangedDateState
+                                  ? state.date
+                                  : DateFormat.yMd().format(DateTime.now()),
+                              readOnly: true,
+                            ),
+                          ),
                           widget: IconButton(
                               onPressed: () {
                                 changeDate();
@@ -142,10 +161,20 @@ class _AddTaskScreenState extends State<AddTaskScreen>
                             Expanded(
                                 child: InputField(
                               title: "Start time",
-                              readOnly: true,
-                              formFieldType: FormFieldType.startTime,
-                              hintText:
-                                  DateFormat("hh:mm a").format(DateTime.now()),
+                              textField: BlocBuilder<InputFieldCubit,
+                                  InputFieldStates>(
+                                buildWhen: (previous, current) =>
+                                    current is InputFieldChangedStartTimeState,
+                                builder: (context, state) =>
+                                    CustomTextFormField(
+                                  hintText:
+                                      state is InputFieldChangedStartTimeState
+                                          ? state.startTime
+                                          : DateFormat("hh:mm a")
+                                              .format(DateTime.now()),
+                                  readOnly: true,
+                                ),
+                              ),
                               widget: IconButton(
                                   onPressed: () {
                                     changeTime(true);
@@ -160,13 +189,23 @@ class _AddTaskScreenState extends State<AddTaskScreen>
                             ),
                             Expanded(
                               child: InputField(
-                                readOnly: true,
+                                textField: BlocBuilder<InputFieldCubit,
+                                    InputFieldStates>(
+                                  buildWhen: (previous, current) =>
+                                      current is InputFieldChangedEndTimeState,
+                                  builder: (context, state) =>
+                                      CustomTextFormField(
+                                    hintText: state
+                                            is InputFieldChangedEndTimeState
+                                        ? state.endTime
+                                        : DateFormat("hh:mm a")
+                                            .format(DateTime.now().add(
+                                                const Duration(minutes: 10)))
+                                            .toString(),
+                                    readOnly: true,
+                                  ),
+                                ),
                                 title: "End time",
-                                formFieldType: FormFieldType.endTime,
-                                hintText: DateFormat("hh:mm a")
-                                    .format(
-                                        DateTime.now().add(const Duration(minutes: 10)))
-                                    .toString(),
                                 widget: IconButton(
                                     onPressed: () {
                                       changeTime(false);
@@ -179,66 +218,113 @@ class _AddTaskScreenState extends State<AddTaskScreen>
                             )
                           ],
                         ),
-                        BlocProvider<DropDownFieldCubit>(
-                          create: (context) => DropDownFieldCubit(),
-                          child: InputField(
-                            title: "Remind",
-                            formFieldType: FormFieldType.dropDown,
-                            readOnly: true,
-                            hintText: "$_remindMe minutes early",
-                            widget: Row(
-                              children: [
-                                Builder(builder: (context) {
-                                  return CustomDropDownButton(
-                                    dropDownMenuItems:
-                                        DropDownMenuItems.remindMeDropDownMenuItems,
-                                    onChanged: (Object? newValue) {
-                                      _remindMe = newValue as int;
-                                      DropDownFieldCubit.get(context)
-                                          .changeRemindDropDownMenuItemValue(
-                                              _remindMe.toString());
-                                    },
-                                  );
-                                }),
-                                const SizedBox(
-                                  width: 10,
-                                )
-                              ],
+                        InputField(
+                          title: "Remind",
+                          textField:
+                              BlocBuilder<InputFieldCubit, InputFieldStates>(
+                            buildWhen: (previous, current) =>
+                                current is InputFieldChangedRemindState,
+                            builder: (context, state) => CustomTextFormField(
+                              hintText: state is InputFieldChangedRemindState
+                                  ? state.remindValue
+                                  : "$_remindMe minutes early",
+                              readOnly: true,
                             ),
                           ),
+                          widget: Row(
+                            children: [
+                              Builder(builder: (context) {
+                                return CustomDropDownButton(
+                                  dropDownMenuItems: DropDownMenuItems
+                                      .remindMeDropDownMenuItems,
+                                  onChanged: (Object? newValue) {
+                                    _remindMe = newValue as int;
+                                    InputFieldCubit.get(context)
+                                        .changeRemindInputFieldMenuItemValue(
+                                            _remindMe.toString());
+                                  },
+                                );
+                              }),
+                              const SizedBox(
+                                width: 10,
+                              )
+                            ],
+                          ),
                         ),
-                        BlocProvider<DropDownFieldCubit>(
-                          create: (context) => DropDownFieldCubit(),
-                          child: InputField(
-                            title: "Repeat",
-                            formFieldType: FormFieldType.dropDown,
-                            readOnly: true,
-                            hintText: _repeat,
-                            widget: Row(
-                              children: [
-                                Builder(builder: (context) {
-                                  return CustomDropDownButton(
-                                      dropDownMenuItems:
-                                          DropDownMenuItems.repeatDropDownMenuItems,
-                                      onChanged: (Object? newValue) {
-                                        _repeat = newValue.toString();
-                                        DropDownFieldCubit.get(context)
-                                            .changeRepeatDropDownMenuItemValue(
-                                                _repeat);
-                                      });
-                                }),
-                                const SizedBox(
-                                  width: 10,
-                                )
-                              ],
+                        InputField(
+                          title: "Repeat",
+                          textField:
+                              BlocBuilder<InputFieldCubit, InputFieldStates>(
+                            buildWhen: (previous, current) =>
+                                current is InputFieldChangedRepeatState,
+                            builder: (context, state) => CustomTextFormField(
+                              hintText: state is InputFieldChangedRepeatState
+                                  ? state.repeatValue
+                                  : _repeat,
+                              readOnly: true,
                             ),
+                          ),
+                          widget: Row(
+                            children: [
+                              Builder(builder: (context) {
+                                return CustomDropDownButton(
+                                    dropDownMenuItems: DropDownMenuItems
+                                        .repeatDropDownMenuItems,
+                                    onChanged: (Object? newValue) {
+                                      _repeat = newValue.toString();
+                                      InputFieldCubit.get(context)
+                                          .changeRepeatInputFieldMenuItemValue(
+                                              _repeat);
+                                    });
+                              }),
+                              const SizedBox(
+                                width: 10,
+                              )
+                            ],
                           ),
                         ),
                         const SizedBox(
                           height: 16,
                         ),
                         Row(children: [
-                          const Expanded(child: TaskColorBuilder()),
+                          Expanded(
+                              child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Color",
+                                style: Themes.titleStyle,
+                              ),
+                              const SizedBox(
+                                height: 8,
+                              ),
+                              Wrap(
+                                  direction: Axis.horizontal,
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: List.generate(
+                                    _taskCircleColors.length,
+                                    (index) => GestureDetector(
+                                        onTap: () {
+                                          if (_currentTaskCircleColor !=
+                                              _taskCircleColors[index]) {
+                                            _currentTaskCircleColor =
+                                                _taskCircleColors[index];
+                                                TaskColorCubit.get(context)
+                                              .changeTaskColorIndex(index);
+                                              }
+                                        },
+                                        child: BlocBuilder<TaskColorCubit,TaskColorStates>(
+                                          buildWhen: (prev,current) => current is TaskColorChangedIndexState && (current.taskColorCurrentIndex == index || current.taskColorPrevIndex==index),
+                                          builder:(context,state) => TaskCircle(
+                                            taskCircleColor:_taskCircleColors[index],
+                                            isSelected: state is TaskColorChangedIndexState && state.taskColorCurrentIndex == index ? true:false,
+                                          ),
+                                        )),
+                                  )),
+                            ],
+                          )),
                           TaskButton(
                             label: "Create task",
                             onTap: () {},

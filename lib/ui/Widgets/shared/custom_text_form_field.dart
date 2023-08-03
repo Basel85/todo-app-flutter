@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:todo/theme.dart';
 
 class CustomTextFormField extends StatelessWidget {
+  final bool readOnly;
   final TextEditingController? controller;
   final String hintText;
-  final bool readOnly;
-  const CustomTextFormField({super.key, this.controller, required this.hintText, required this.readOnly});
+  const CustomTextFormField({super.key, this.readOnly = false, this.controller, required this.hintText});
 
   @override
   Widget build(BuildContext context) {
