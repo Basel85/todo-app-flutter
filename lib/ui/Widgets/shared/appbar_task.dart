@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:todo/theme.dart';
-
 import '../../../constants/keys.dart';
-class AppBarTask extends StatelessWidget {
+class AppBarTask extends StatelessWidget implements PreferredSizeWidget {
   final String assetImagePath;
   final bool isHomePage;
   final String appBarTitle;
   const AppBarTask({super.key, required this.assetImagePath, required this.isHomePage, this.appBarTitle=""});
-
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
   @override
   Widget build(BuildContext context) {
+    debugPrint("AppBar Task");
     return AppBar(
        title: Text(
       appBarTitle,

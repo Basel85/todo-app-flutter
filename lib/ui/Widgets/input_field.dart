@@ -4,15 +4,13 @@ import 'package:todo/theme.dart';
 class InputField extends StatelessWidget {
   final String title;
   final Widget textField;
-  final Widget? widget;
 
   const InputField(
-      {super.key,
-      required this.title,
-      this.widget, required this.textField});
+      {super.key,required this.title,required this.textField});
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("Input Field");
     return Container(
       padding: const EdgeInsets.only(top: 16),
       child: Column(
@@ -31,14 +29,7 @@ class InputField extends StatelessWidget {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: primary)),
-            child: Row(
-              children: [
-                Expanded(
-                  child: textField,
-                ),
-                widget ?? Container()
-              ],
-            ),
+            child: textField,
           ),
         ],
       ),

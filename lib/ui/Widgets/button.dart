@@ -7,6 +7,7 @@ class TaskButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("Button");
     return GestureDetector(
       onTap: onTap,
       child: Container(
