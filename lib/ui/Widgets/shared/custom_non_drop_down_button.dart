@@ -7,7 +7,6 @@ class CustomNonDropDownButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("Non DropDown Button");
     return IconButton(
       icon: Icon(
         iconData,

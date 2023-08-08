@@ -34,7 +34,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   TimeOfDay _selectedStartTime = TimeOfDay.now();
   TimeOfDay _selectedEndTime = TimeOfDay.now();
   final List<Color> _taskCircleColors = [primary, pink, orange];
-  Color _currentTaskCircleColor = primary;
+  Color _taskCircleColor = primary;
   @override
   void initState() {
     _date = DateFormat.yMd().format(DateTime.now());
@@ -42,9 +42,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   void addTask() {
-    try {} catch (e) {
-      debugPrint(e.toString());
-    }
+    debugPrint("title: ${_titleEditingController.text}");
+    debugPrint("note: ${_noteEditingController.text}");
+    debugPrint("Date: $_date");
+    debugPrint("Start time: $_startTime");
+    debugPrint("End time: $_endTime");
+    debugPrint("remind me: $_remindMe");
+    debugPrint("repeat: $_repeat");
+    debugPrint("color: $_taskCircleColor");
   }
 
   void changeTime(bool isStartTime) {
@@ -84,7 +89,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("Add Task");
     return Scaffold(
       appBar: const AppBarTask(
         assetImagePath: "assets/images/person.png",
@@ -271,9 +275,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       _taskCircleColors.length,
                       (index) => GestureDetector(
                           onTap: () {
-                            if (_currentTaskCircleColor !=
+                            if (_taskCircleColor !=
                                 _taskCircleColors[index]) {
-                              _currentTaskCircleColor =
+                              _taskCircleColor =
                                   _taskCircleColors[index];
                               TaskColorCubit.get(context)
                                   .changeTaskColorIndex(index);
@@ -308,7 +312,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             )),
             TaskButton(
               label: "Create task",
-              onTap: () {},
+              onTap: addTask,
             ),
           ]),
         ],

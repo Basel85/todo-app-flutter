@@ -10,7 +10,6 @@ class AppBarTask extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
   @override
   Widget build(BuildContext context) {
-    debugPrint("AppBar Task");
     return AppBar(
        title: Text(
       appBarTitle,

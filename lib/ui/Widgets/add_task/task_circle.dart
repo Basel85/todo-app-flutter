@@ -8,7 +8,6 @@ class TaskCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("Task Circle");
     return CircleAvatar(
       radius: 14,
       backgroundColor: taskCircleColor,

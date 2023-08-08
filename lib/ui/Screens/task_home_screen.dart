@@ -25,7 +25,6 @@ class _TaskHomeScreenState extends State<TaskHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("Task Home Screen");
     return Scaffold(
       appBar: const AppBarTask(
         assetImagePath: "assets/images/person.png",

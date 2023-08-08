@@ -10,7 +10,6 @@ class InputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("Input Field");
     return Container(
       padding: const EdgeInsets.only(top: 16),
       child: Column(

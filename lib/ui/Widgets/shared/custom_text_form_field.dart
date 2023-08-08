@@ -15,8 +15,6 @@ class CustomTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("TextFormField");
-
     return TextFormField(
       onTapOutside: (_) {
         FocusScope.of(context).unfocus();
